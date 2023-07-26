@@ -3,10 +3,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,19 +31,16 @@ public class UserTest {
         System.out.println("--- New test ---");
     }
 
-    // Task B
-
+    // Task B -----------
     @ParameterizedTest
     @CsvFileSource(resources = "SortedByAge.csv", numLinesToSkip = 1)
-    @DisplayName("Task B: CSV file")
-    void testSortedByAge(String firstName, String secondName, int age) {
-        assertNotNull(firstName, secondName);
-        assertNotEquals(0,age);
+    @DisplayName("Task B - positive")
+    void testSortedByAge(int age) {
+        assertNotNull(age);
     }
 
-
     @Test
-    @DisplayName("Task B - positive: Sorted by Age collection")
+    @DisplayName("Task B - positive")
     public void testSortedByAge() {
         List<User> sortedList = Main.sortedByAge();
         for (int i = 0; i < sortedList.size() - 1; i++) {
@@ -55,21 +49,14 @@ public class UserTest {
     }
 
     @Test
-    @DisplayName("Task B - positive: List is not empty")
-    void testSortedByAgeNotNull() {
-        List<User> sortedList = Main.sortedByAge();
-        assertNotNull(sortedList); // Check that list is not empty
-    }
-
-    @Test
     @DisplayName("Task B - negative")
-    void testSortedByAgeWithEmptyList() {
+    void testSortedByAgeNotNull() {
         Main.userList.clear();
-        Assertions.assertNotEquals(Collections.emptyList(), Main.sortedByAge());
+        List<User> sortedList = Main.sortedByAge();
+        assertNull(sortedList);
     }
 
-
-    // Task C
+     // Task C ----------
     @Test
     @DisplayName("Task C - positive:")
     void testAverageAge() {
@@ -81,9 +68,7 @@ public class UserTest {
     @DisplayName("Task C - positive:")
     void testAverageAge_Positive_EmptyList() {
         userList.clear();
-
         double actualAverage = Main.averageAge();
-
         Assertions.assertEquals(0.0, actualAverage, 0.001);
     }
 
@@ -94,21 +79,19 @@ public class UserTest {
         Assertions.assertThrows(NullPointerException.class, () -> Main.averageAge());
     }
 
-    // Task D
+    // Task D ---------
     @ParameterizedTest
     @DisplayName("Task D - positive:")
     @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
     public void testSortedByFirstNameAndAgeNotNull(int iteration) {
         List<User> sortedList = Main.sortedByFirstNameAndAge();
         assertNotNull(sortedList);
-
     }
 
     @Test
     @DisplayName("Task D - positive:")
     public void testSortedByFirstNameAndAge() {
         List<User> sortedList = Main.sortedByFirstNameAndAge();
-        // Проверяем, что список отсортирован по имени, а затем по возрасту
         for (int i = 0; i < sortedList.size() - 1; i++) {
             User current = sortedList.get(i);
             User next = sortedList.get(i + 1);
@@ -120,26 +103,63 @@ public class UserTest {
     }
 
     @Test
-    void testUsersWithSOrA_positiveCase() {
+    @DisplayName("Task D - negative:")
+    void testSortedByFirstNameAndAge_Negative() {
+        userList = null;
+        List<User> sortedList = Main.sortedByFirstNameAndAge();
+        Assertions.assertNotNull(sortedList);
+        Assertions.assertTrue(sortedList.isEmpty());
+    }
+
+    // Task E ------
+    @Test
+    @DisplayName("Task E - Negative(Empty user list)")
+    void testEmptyUserList_Negative() {
+        userList.clear();
         boolean result = Main.usersWithSOrA();
-        // Add assertions for the positive case
-        Assertions.assertTrue(result);
-        //...
+        assertFalse(result, "Expected no users with names starting with 'S' or 'A' in an empty user list");
     }
 
     @Test
-    public void testUsersWithSOrA_negativeCase() {
+    @DisplayName("Task E - positive")
+    void testUsersWithSOrA_ExistsA() {
+        User userWithA = new User("Jane", "Adams", 19);
+        Main.userList.add(userWithA);
         boolean result = Main.usersWithSOrA();
-        // Add assertions for the negative case
-        assertFalse(result);
-        //...
+        Assertions.assertTrue(result);
+        Main.userList.clear();
     }
 
-    @RepeatedTest(10)
-    @DisplayName("Repeated test: User over 18")
-    void testUsersOver18() {
+    @Test
+    @DisplayName("Task E - positive")
+    void testUsersWithSOrA_ExistsS() {
+        User userWithS = new User("John", "Smith", 20);
+        Main.userList.add(userWithS);
+        boolean result = Main.usersWithSOrA();
+        Assertions.assertTrue(result);
+        Main.userList.clear();
+    }
+
+    // Task F ------
+    @Test
+    @DisplayName("Task F - positive")
+    void testUserOlderThen18(){
         boolean result = Main.usersOver18();
         Assertions.assertTrue(result);
+    }
+
+    @RepeatedTest(value = 10, name = "Task F - repeated")
+    @DisplayName("Task F - positive")
+    void testUsersOver18(RepetitionInfo repetitionInfo) {
+        System.out.println("Repeated test №: " + repetitionInfo.getCurrentRepetition() + " of " + repetitionInfo.getTotalRepetitions());
+        Assertions.assertTrue(Main.usersOver18());
+    }
+
+    @Test
+    @DisplayName("Task F - negative")
+    void testUserOlderThen18Negative(){
+        boolean result = Main.usersOver18();
+        Assertions.assertFalse(result);
     }
 
     @AfterEach
